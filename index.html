@@ -44,7 +44,7 @@ nav.tabs button{border:none; background:transparent; color:var(--text-dim); font
   padding:8px 14px; border-radius:999px; cursor:pointer; transition:.15s;}
 nav.tabs button.active{background:var(--orange); color:#1a0e05;}
 
-main{max-width:720px; margin:0 auto; padding:8px 14px 90px;}
+main{max-width:920px; margin:0 auto; padding:8px 14px 90px;}
 .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px; margin-bottom:14px;}
 .card h2{font-size:13px; margin:0 0 12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.08em; font-weight:700;}
 
@@ -90,16 +90,17 @@ input:focus,select:focus{border-color:var(--orange);}
 .gamebar .info .date{color:var(--text-dim); font-size:12px;}
 
 .stat-btn.big{padding:24px 8px; font-size:19px; font-weight:800;}
-/* 左:自チーム / 中央:コート / 右:相手 の縦積みレイアウト */
-.court-layout{display:grid; grid-template-columns:62px 1fr 62px; gap:6px; align-items:start; margin-top:6px;}
-.team-col{display:flex; flex-direction:column; gap:6px;}
-.team-col-label{font-size:10px; color:var(--text-dim2); font-weight:700; text-align:center; margin-bottom:2px;}
+/* 左:自チーム / 中央:コート / 右:相手 の縦積みレイアウト
+   画面幅に応じて選手ボタンの列幅を伸縮させ、余白を埋める */
+.court-layout{display:grid; grid-template-columns:minmax(70px,130px) 1fr minmax(70px,130px); gap:10px; align-items:start; margin-top:6px;}
+.team-col{display:flex; flex-direction:column; gap:8px;}
+.team-col-label{font-size:11px; color:var(--text-dim2); font-weight:700; text-align:center; margin-bottom:2px;}
 .court-center{min-width:0;}
-.vchip{background:var(--panel-2); border:2px solid var(--line); border-radius:10px; padding:7px 2px 6px; text-align:center; cursor:pointer; transition:.12s; user-select:none;}
+.vchip{background:var(--panel-2); border:2px solid var(--line); border-radius:12px; padding:12px 4px 10px; text-align:center; cursor:pointer; transition:.12s; user-select:none; min-height:64px;}
 .vchip:active{transform:scale(0.94);}
-.vchip .num{font-family:'JetBrains Mono'; font-weight:700; font-size:18px; line-height:1.05;}
-.vchip .nm{font-size:8.5px; color:var(--text-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:1px;}
-.vchip .sub{font-size:8.5px; color:var(--amber); font-family:'JetBrains Mono'; margin-top:2px;}
+.vchip .num{font-family:'JetBrains Mono'; font-weight:700; font-size:24px; line-height:1.05;}
+.vchip .nm{font-size:11px; color:var(--text-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:3px;}
+.vchip .sub{font-size:11px; color:var(--amber); font-family:'JetBrains Mono'; margin-top:3px;}
 .vchip .sub .pf{color:var(--red); font-weight:700;}
 .vchip.oncourt{border-color:rgba(31,157,107,.6);}
 .vchip.oncourt .num{color:var(--green);}
@@ -926,7 +927,11 @@ function renderLiveView(app){
   }
   const clockDisp = document.getElementById('gameClockDisplay');
   if(clockDisp && g.status==='live'){
-    clockDisp.onclick = ()=> openClockEditDialog(g);
+    clockDisp.onclick = ()=>{
+      // 動作中の誤タップでクロックが止まるのを防ぐため、編集は一時停止中のみ
+      if(g.clock.running){ showToast('時間を編集するには、先に一時停止してください'); return; }
+      openClockEditDialog(g);
+    };
   }
   if(g.status==='live'){
     document.getElementById('finishBtn').onclick = async ()=>{
@@ -1202,7 +1207,7 @@ function buildCourtSvg(shots, pending){
   /* 12単位=1m。ペイント: 幅4.9m(70.6〜129.4)×長さ5.8m(y10〜79.6)。FTサークル r1.8m=21.6。
      3P: 半径6.75m=81(頂点y=110)でFTサークル下端(101.2)と重ならない */
   return `
-  <svg id="courtSvg" viewBox="0 0 200 188" style="width:100%; max-width:340px; display:block; margin:0 auto; touch-action:manipulation; background:var(--panel-2); border-radius:8px;">
+  <svg id="courtSvg" viewBox="0 0 200 188" style="width:100%; max-width:600px; display:block; margin:0 auto; touch-action:manipulation; background:var(--panel-2); border-radius:8px;">
     <rect x="10" y="10" width="180" height="168" fill="none" stroke="var(--line)" stroke-width="2"/>
     <rect x="70.6" y="10" width="58.8" height="69.6" fill="none" stroke="var(--line)" stroke-width="1.5"/>
     <path d="M 78.4 79.6 A 21.6 21.6 0 0 0 121.6 79.6" fill="none" stroke="var(--line)" stroke-width="1.5"/>
